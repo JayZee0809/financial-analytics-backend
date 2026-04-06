@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+enum RecordType {
+  INCOME
+  EXPENSE
+}
+
+enum STATUS {
+  ACTIVE
+  INACTIVE
+}
+
+enum RoleRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(50)
+  email     String   @unique @db.VarChar(100)
+  password  String   @db.VarChar(255)
+  role      Role     @default(VIEWER)
+  status    STATUS   @default(ACTIVE)
+  requestedRole      Role?
+  roleRequestStatus  RoleRequestStatus?
+  createdAt DateTime @default(now())
+
+  failedAttempts Int      @default(0)
+  lockUntil      DateTime?
+
+  financialRecords FinancialRecord[]
+}
+
+model FinancialRecord {
+  id         String   @id @default(uuid())
+  amount     Float
+  type       RecordType
+  category   String   @db.VarChar(50)
+  date       DateTime
+  notes      String?  @db.VarChar(255)
+  createdBy  String
+  createdAt  DateTime @default(now())
+// soft delete flag
+  isDeleted  Boolean  @default(false)
+
+  user User @relation(fields: [createdBy], references: [id])
+
+// Composite indexes (for dashboard queries)
+  @@index([type, category, date, isDeleted])
+  @@index([category, type])
+
+// Supporting index
+  @@index([date])
+}
