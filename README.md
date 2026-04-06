@@ -62,14 +62,17 @@ Backend system for managing financial records, RBAC, and analytics dashboards.
 - No refresh tokens
 - No Redis
 - Simpler workflow model
+- If the proportion of soft-deleted records grows significantly, moving isDeleted before range columns or using a partial index would improve performance
+- For complex performance tuning and queries vanilla sql using pg is more suitable
 
 ## Future Improvements
 - Refresh tokens
 - Audit logs
 - Notifications
 - caching/async processing/pre-aggregations (very useful in dashboard if DB gets large)
-- If the proportion of soft-deleted records grows significantly, moving isDeleted before range columns or using a partial index would improve performance
 - Catagories can be tag based, each record can belong to multiple catagories, catagories shall of key-value pair type
+- whitelisting in helmet, proper access-control
+- In a production setup with huge and complex database, a combination of ORM and vanilla sql can be used if required
 
 ## Run
 ```bash
